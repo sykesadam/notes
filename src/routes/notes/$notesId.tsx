@@ -1,0 +1,37 @@
+import { Editor } from "@/components/editor/editor";
+import { Button } from "@/components/ui/button";
+import { getNoteQueryOptions, saveNoteMutationOptions } from "@/hooks/notes";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { Maximize, Shrink } from "lucide-react";
+import { type ReactNode, useState } from "react";
+
+export const Route = createFileRoute("/notes/$notesId")({
+	component: RouteComponent,
+	loader: async ({ context, params }) => {
+		context.queryClient.ensureQueryData(getNoteQueryOptions(params.notesId));
+	},
+	ssr: false,
+});
+
+function RouteComponent() {
+	const { notesId } = Route.useParams();
+	const { data } = useQuery(getNoteQueryOptions(notesId));
+
+	const saveNoteMutation = useMutation(saveNoteMutationOptions(notesId));
+
+	if (!data) {
+		throw notFound();
+	}
+
+	return (
+		<main className="px-4 max-w-4xl mx-auto my-8">
+			<Editor
+				defaultEditorState={data.editorState ? data.editorState : undefined}
+				onChange={(content) => {
+					saveNoteMutation.mutate(content);
+				}}
+			/>
+		</main>
+	);
+}
