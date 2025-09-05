@@ -1,9 +1,9 @@
+import { Maximize, Meh, Shrink, Smile } from "lucide-react";
+import { useState } from "react";
 import {
 	getEditorSizeLocalStorage,
 	setEditorSizeLocalStorage,
 } from "@/lib/utils";
-import { Maximize, Meh, Shrink, Smile, Wind } from "lucide-react";
-import { useState } from "react";
 import { Button } from "../ui/button";
 import { Toggle } from "../ui/toggle";
 import { HistoryActions } from "./history-actions";
@@ -39,15 +39,6 @@ const EditorResize = () => {
 		>
 			{editorWidth === "default" ? <Shrink /> : <Maximize />}
 		</Button>
-	);
-};
-
-const ZenMode = () => {
-	return (
-		<Toggle aria-label="Toggle Zen" variant="outline">
-			<Wind />
-			Zen
-		</Toggle>
 	);
 };
 

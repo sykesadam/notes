@@ -1,8 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { getNotesQueryOptions } from "@/hooks/notes";
 import { createNote } from "@/lib/db/notes";
-import { useQuery } from "@tanstack/react-query";
-import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/notes/")({
 	component: RouteComponent,

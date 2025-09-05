@@ -1,4 +1,3 @@
-import { getEditorSizeLocalStorage } from "@/lib/utils";
 import { CodeNode } from "@lexical/code";
 import {
 	type InitialConfigType,
@@ -11,6 +10,7 @@ import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { getEditorSizeLocalStorage } from "@/lib/utils";
 import { AutoFocusPlugin } from "./autofocus-plugin";
 import { MenuBar } from "./menu-bar";
 

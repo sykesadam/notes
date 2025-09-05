@@ -1,5 +1,5 @@
-import { getNote, getNotes, saveNote } from "@/lib/db/notes";
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import { getNote, getNotes, saveNote } from "@/lib/db/notes";
 
 const queryKeys = {
 	notes: ["notes"] as const,

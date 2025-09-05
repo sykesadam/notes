@@ -1,10 +1,7 @@
-import { Editor } from "@/components/editor/editor";
-import { Button } from "@/components/ui/button";
-import { getNoteQueryOptions, saveNoteMutationOptions } from "@/hooks/notes";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { Maximize, Shrink } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { Editor } from "@/components/editor/editor";
+import { getNoteQueryOptions, saveNoteMutationOptions } from "@/hooks/notes";
 
 export const Route = createFileRoute("/notes/$notesId")({
 	component: RouteComponent,
