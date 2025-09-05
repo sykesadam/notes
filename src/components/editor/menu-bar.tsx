@@ -1,6 +1,7 @@
 import { Maximize, Meh, Shrink, Smile } from "lucide-react";
 import { useState } from "react";
 import {
+	cn,
 	getEditorSizeLocalStorage,
 	setEditorSizeLocalStorage,
 } from "@/lib/utils";
@@ -46,7 +47,12 @@ export function MenuBar() {
 	const [zenMode, setZenMode] = useState(false);
 
 	return (
-		<div className="flex gap-2 sticky top-8 bg-white">
+		<div
+			className={cn(
+				"flex gap-2 sticky top-0 py-4",
+				!zenMode && "bg-background/85 backdrop-blur-sm",
+			)}
+		>
 			{!zenMode && (
 				<>
 					<HistoryActions />

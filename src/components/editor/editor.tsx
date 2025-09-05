@@ -23,7 +23,7 @@ const initialConfig: InitialConfigType = {
 	namespace: "notes-editor",
 	onError: (error: Error) => console.error(error),
 	theme: {
-		root: "prose max-w-none text-foreground",
+		root: "prose dark:prose-invert max-w-none prose-zinc",
 		text: {
 			bold: "font-bold",
 			italic: "italic",

@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Header from "@/components/header";
+import { ThemeProvider } from '@/components/theme-provider';
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 
 import appCss from "../styles.css?url";
@@ -53,11 +54,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
 			<head>
-				<HeadContent />
+				<HeadContent/>
 			</head>
 			<body>
-				<Header />
-				{children}
+				<ThemeProvider>
+					<Header />
+					{children}
+				</ThemeProvider>
 				<TanStackDevtools
 					config={{
 						position: "bottom-left",
