@@ -54,7 +54,7 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 				<RichTextPlugin
 					contentEditable={
 						<ContentEditable
-							className="p-2 w-full rounded-md"
+							className="p-2 w-full rounded-md outline-none"
 							aria-placeholder={"Start typing..."}
 							placeholder={<div>Start typing...</div>}
 						/>

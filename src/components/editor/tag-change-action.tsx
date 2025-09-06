@@ -20,6 +20,7 @@ import {
 	Quote,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
 	Select,
 	SelectContent,
@@ -62,8 +63,12 @@ const Icon = ({ id }: { id: string }) => {
 	return <Comp className="text-foreground" strokeWidth={1.5} />;
 };
 
-export const TagChangeActions = () => {
-	const [value, setValue] = useState<string>();
+export const TagChangeActions = ({
+	variant = "default",
+}: {
+	variant?: "minimal" | "default";
+}) => {
+	const [value, setValue] = useState<string>("");
 	const [editor] = useLexicalComposerContext();
 
 	const updateToolbar = useCallback(() => {
@@ -72,7 +77,7 @@ export const TagChangeActions = () => {
 		if (!selection) {
 			console.log("här2?");
 
-			setValue(undefined);
+			setValue("");
 			return;
 		}
 
@@ -81,7 +86,7 @@ export const TagChangeActions = () => {
 		const parentNode = node.getParent();
 
 		if (!parentNode) {
-			setValue(undefined);
+			setValue("");
 			return;
 		}
 
@@ -99,7 +104,7 @@ export const TagChangeActions = () => {
 			setValue("p");
 		} else {
 			console.warn("fan hit vill man ju inte komma asså");
-			setValue(undefined);
+			setValue("");
 		}
 	}, []);
 
@@ -145,17 +150,17 @@ export const TagChangeActions = () => {
 
 	return (
 		<Select value={value} onValueChange={handleChange}>
-			<SelectTrigger className="w-[170px]">
+			<SelectTrigger className={cn(variant === "default" && "w-[170px]")}>
 				<SelectValue placeholder="No selection">
 					{value && <Icon id={value} />}
-					{getLabel(value)}
+					{variant === "default" && getLabel(value)}
 				</SelectValue>
 			</SelectTrigger>
 			<SelectContent>
 				{possibleTags.map(({ tag, label }) => (
 					<SelectItem key={tag} value={tag}>
 						<Icon id={tag} />
-						{label}
+						{variant === "default" && label}
 					</SelectItem>
 				))}
 			</SelectContent>
