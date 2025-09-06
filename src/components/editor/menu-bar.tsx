@@ -3,11 +3,11 @@ import {
 	$getSelection,
 	$isRangeSelection,
 	COMMAND_PRIORITY_LOW,
-	KEY_,
 	KEY_DOWN_COMMAND,
+	SELECTION_CHANGE_COMMAND,
 } from "lexical";
 import { Maximize, Meh, Shrink, Smile } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	cn,
 	getEditorSizeLocalStorage,
@@ -18,6 +18,14 @@ import { Toggle } from "../ui/toggle";
 import { HistoryActions } from "./history-actions";
 import { InlineTextActions } from "./inline-text-actions";
 import { TagChangeActions } from "./tag-change-action";
+import { ListActions } from './list-actions';
+import {
+  useFloating,
+  autoUpdate,
+  offset,
+  flip,
+  shift,
+} from '@floating-ui/react';
 
 const EditorResize = () => {
 	const [editorWidth, setEditorWidth] = useState<"narrow" | "default">(
@@ -52,95 +60,129 @@ const EditorResize = () => {
 };
 
 const FloatingActions = () => {
-	const [editor] = useLexicalComposerContext();
-	const [showActions, setShowActions] = useState(false);
-	const [position, setPosition] = useState({ top: 0, left: 0 });
-	const [isTyping, setIsTyping] = useState(false);
-	const actionsRef = useRef<HTMLDivElement>(null);
-	const typingTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const [editor] = useLexicalComposerContext();
+  const [showActions, setShowActions] = useState(false);
+	const [isSelecting, setIsSelecting] = useState(false);
+	const [isPositioned, setIsPositioned] = useState(false)
+  const isTypingRef = useRef(false);
+
+  const { refs, floatingStyles } = useFloating({
+    whileElementsMounted: autoUpdate,
+    placement: 'top',
+    middleware: [
+      offset(10),
+      flip({ padding: 10 }),
+      shift({ padding: 10 }),
+    ],
+  });
+
+	const hideMenu = useCallback(() => {
+    setShowActions(false);
+    setIsPositioned(false);
+  }, []);
+
+  const updateMenu = useCallback(() => {
+    editor.getEditorState().read(() => {
+      // Don't show menu if the editor is composing an update.
+      if (editor.isComposing())
+        return;
+
+
+      const selection = $getSelection();
+      const nativeSelection = window.getSelection();
+
+      if (
+        !nativeSelection ||
+        !$isRangeSelection(selection) ||
+        !editor.getRootElement()?.contains(nativeSelection.anchorNode)
+      ) {
+        hideMenu()
+        return;
+      }
+
+      const domRange = nativeSelection.getRangeAt(0);
+      refs.setReference({
+        getBoundingClientRect: () => domRange.getBoundingClientRect(),
+      });
+      setShowActions(true);
+			setIsPositioned(true);
+    });
+  }, [editor, refs]);
 
 	useEffect(() => {
-		// Register keyboard command to detect typing
-		return editor.registerCommand(
-			KEY_DOWN_COMMAND,
-			() => {
-				setIsTyping(true);
+    const rootElement = editor.getRootElement();
+    if (!rootElement) return;
 
-				// Clear previous timeout
-				if (typingTimeoutRef.current) {
-					clearTimeout(typingTimeoutRef.current);
-				}
+    const handlePointerDown = () => {
+      setIsSelecting(true);
+    };
+    const handlePointerUp = () => {
+      setIsSelecting(false);
+    };
 
-				// Reset typing state after 1 second of no typing
-				typingTimeoutRef.current = setTimeout(() => {
-					setIsTyping(false);
-				}, 1000);
+    rootElement.addEventListener('pointerdown', handlePointerDown);
+    rootElement.addEventListener('pointerup', handlePointerUp);
 
-				return false; // Let other plugins handle the command
-			},
-			COMMAND_PRIORITY_LOW,
-		);
-	}, [editor]);
+    return () => {
+      rootElement.removeEventListener('pointerdown', handlePointerDown);
+      rootElement.removeEventListener('pointerup', handlePointerUp);
+    };
+  }, [editor]);
 
-	useEffect(() => {
-		return editor.registerUpdateListener(({ editorState }) => {
-			editorState.read(() => {
-				const selection = $getSelection();
+  useEffect(() => {
+    // Hide the menu when typing starts.
+    const unregisterKeyDown = editor.registerCommand(
+      KEY_DOWN_COMMAND,
+      () => {
+        isTypingRef.current = true;
+        setShowActions(false);
+        return false;
+      },
+      COMMAND_PRIORITY_LOW,
+    );
 
-				if (!selection || isTyping) {
-					setShowActions(false);
-					return;
-				}
 
-				// TODO: have some sort of debounce so I dont change position so much when making selection
+    const unregisterSelectionChange = editor.registerCommand(
+      SELECTION_CHANGE_COMMAND,
+      () => {
+        // We use a timeout to allow the KEY_DOWN_COMMAND to run first.
+        // This helps us distinguish a selection change from typing vs. a click.
+        setTimeout(() => {
+          if (isTypingRef.current) {
+            isTypingRef.current = false; // Reset the flag
+            return;
+          }
+          updateMenu();
+        }, 50); // A small delay is enough
 
-				const domSelection = window.getSelection();
-				const domRange = domSelection?.getRangeAt(0);
-				const rect = domRange?.getBoundingClientRect();
+        return false;
+      },
+      COMMAND_PRIORITY_LOW,
+    );
 
-				console.log(rect);
+    return () => {
+      unregisterKeyDown();
+      unregisterSelectionChange();
+    };
+  }, [editor, updateMenu]);
 
-				if (rect) {
-					setPosition({
-						top: rect.top + window.scrollY,
-						left: rect.left + window.scrollX,
-					});
-				}
-
-				setShowActions(true);
-			});
-		});
-	}, [editor, isTyping]);
-
-	console.log(position);
-
-	// Cleanup timeout on unmount
-	useEffect(() => {
-		return () => {
-			if (typingTimeoutRef.current) {
-				clearTimeout(typingTimeoutRef.current);
-			}
-		};
-	}, []);
-
-	return (
-		<div
-			ref={actionsRef}
-			className={cn(
-				"absolute z-50 flex gap-2 bg-background/85 backdrop-blur-sm shadow-md transition duration-200 translate-y-[calc(-100%-0.5rem)] -translate-x-1/2",
-				showActions
-					? "opacity-100 scale-100"
-					: "opacity-0 scale-0 pointer-events-none",
-			)}
-			style={{
-				top: `${position.top ?? 16}px`,
-				left: `${position.left}px`,
-			}}
-		>
+  return (
+    <div
+      ref={refs.setFloating}
+      style={floatingStyles}
+      className={cn(
+        'absolute z-50 flex gap-2 bg-background rounded-lg',
+        'transition-opacity duration-200 ease-in-out',
+        showActions ? 'opacity-100 transition' : 'opacity-0 pointer-events-none',
+				isSelecting && 'pointer-events-none',
+				isPositioned && 'transition-transform duration-200 ease-in-out'
+      )}
+    >
 			<InlineTextActions />
+			<ListActions />
 			<TagChangeActions variant="minimal" />
-		</div>
-	);
+    </div>
+  );
 };
 
 export function MenuBar() {
@@ -159,6 +201,7 @@ export function MenuBar() {
 					<>
 						<HistoryActions />
 						<InlineTextActions />
+						<ListActions />
 						<TagChangeActions />
 					</>
 				)}

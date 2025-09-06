@@ -1,4 +1,9 @@
-import { $createCodeNode, $isCodeNode } from "@lexical/code";
+import {
+	$createCodeHighlightNode,
+	$createCodeNode,
+	$isCodeNode,
+} from "@lexical/code";
+import { $isListItemNode, $isListNode } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
 	$createHeadingNode,
@@ -16,6 +21,7 @@ import {
 	Heading3,
 	Heading4,
 	Heading5,
+	List,
 	Pilcrow,
 	Quote,
 } from "lucide-react";
@@ -30,14 +36,15 @@ import {
 } from "../ui/select";
 
 const possibleTags = [
-	{ tag: "p", label: "Paragraph" },
-	{ tag: "h1", label: "Heading 1" },
-	{ tag: "h2", label: "Heading 2" },
-	{ tag: "h3", label: "Heading 3" },
-	{ tag: "h4", label: "Heading 4" },
-	{ tag: "h5", label: "Heading 5" },
-	{ tag: "code", label: "Code block" },
-	{ tag: "quote", label: "Quote" },
+	{ tag: "p", label: "Paragraph", disabled: false },
+	{ tag: "li", label: "List item", disabled: true },
+	{ tag: "h1", label: "Heading 1", disabled: false },
+	{ tag: "h2", label: "Heading 2", disabled: false },
+	{ tag: "h3", label: "Heading 3", disabled: false },
+	{ tag: "h4", label: "Heading 4", disabled: false },
+	{ tag: "h5", label: "Heading 5", disabled: false },
+	{ tag: "code", label: "Code block", disabled: false },
+	{ tag: "quote", label: "Quote", disabled: false },
 ] as const;
 
 const getLabel = (tag: string | undefined) => {
@@ -46,6 +53,7 @@ const getLabel = (tag: string | undefined) => {
 
 const icons = {
 	p: Pilcrow,
+	li: List,
 	h1: Heading1,
 	h2: Heading2,
 	h3: Heading3,
@@ -102,6 +110,9 @@ export const TagChangeActions = ({
 			setValue(node.getTag());
 		} else if ($isParagraphNode(node)) {
 			setValue("p");
+		} else if ($isListItemNode(parentNode)) {
+			console.log("HALLÅÅ");
+			setValue("li");
 		} else {
 			console.warn("fan hit vill man ju inte komma asså");
 			setValue("");
@@ -151,14 +162,19 @@ export const TagChangeActions = ({
 	return (
 		<Select value={value} onValueChange={handleChange}>
 			<SelectTrigger className={cn(variant === "default" && "w-[170px]")}>
-				<SelectValue placeholder="No selection">
+				<SelectValue placeholder={variant === "default" ? "No selection" : "-"}>
 					{value && <Icon id={value} />}
 					{variant === "default" && getLabel(value)}
 				</SelectValue>
 			</SelectTrigger>
-			<SelectContent>
-				{possibleTags.map(({ tag, label }) => (
-					<SelectItem key={tag} value={tag}>
+			<SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
+				{possibleTags.map(({ tag, label, disabled }) => (
+					<SelectItem
+						key={tag}
+						value={tag}
+						disabled={disabled}
+						className={cn(disabled && "hidden")}
+					>
 						<Icon id={tag} />
 						{variant === "default" && label}
 					</SelectItem>

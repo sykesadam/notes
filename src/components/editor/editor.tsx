@@ -1,4 +1,5 @@
 import { CodeNode } from "@lexical/code";
+import { ListItemNode, ListNode } from "@lexical/list";
 import {
 	type InitialConfigType,
 	type InitialEditorStateType,
@@ -7,8 +8,10 @@ import {
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { getEditorSizeLocalStorage } from "@/lib/utils";
 import { AutoFocusPlugin } from "./autofocus-plugin";
@@ -31,14 +34,14 @@ const initialConfig: InitialConfigType = {
 			strikethrough: "line-through",
 			code: "font-mono bg-gray-100 rounded px-1 inline",
 		},
-		code: "font-mono bg-gray-100 rounded px-1 inline",
+		code: "font-mono bg-gray-100 rounded px-1 block",
 	},
 };
 
 export function Editor({ defaultEditorState, onChange }: EditorProps) {
 	const editorConfig: InitialConfigType = {
 		...initialConfig,
-		nodes: [QuoteNode, HeadingNode, CodeNode],
+		nodes: [QuoteNode, HeadingNode, CodeNode, ListNode, ListItemNode],
 		editorState: defaultEditorState,
 	};
 
@@ -61,6 +64,8 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 					}
 					ErrorBoundary={LexicalErrorBoundary}
 				/>
+				<ListPlugin />
+				<TabIndentationPlugin />
 				<AutoFocusPlugin />
 				<HistoryPlugin />
 				<OnChangePlugin
