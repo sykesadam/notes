@@ -71,8 +71,10 @@ const Icon = ({ id }: { id: string }) => {
 
 export const TagChangeActions = ({
 	variant = "default",
+	size = "sm",
 }: {
 	variant?: "minimal" | "default";
+	size?: "sm" | "default";
 }) => {
 	const [value, setValue] = useState<string>("");
 	const [editor] = useLexicalComposerContext();
@@ -164,6 +166,7 @@ export const TagChangeActions = ({
 					"dark:bg-transparent",
 					variant === "default" && "w-[170px]",
 				)}
+				size={size}
 			>
 				<SelectValue placeholder={variant === "default" ? "No selection" : "-"}>
 					{value && <Icon id={value} />}

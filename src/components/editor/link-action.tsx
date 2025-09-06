@@ -11,6 +11,7 @@ import { Link, Unlink } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -45,7 +46,7 @@ const formSchema = z.object({
 	),
 });
 
-export function LinkAction() {
+export function LinkAction({ size }: { size?: "sm" }) {
 	const [editor] = useLexicalComposerContext();
 	const [isLink, setIsLink] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
@@ -122,7 +123,10 @@ export function LinkAction() {
 				variant="outline"
 				size="icon"
 				onClick={removeLink}
-				className="dark:bg-transparent bg-transparent"
+				className={cn(
+					"dark:bg-transparent bg-transparent",
+					size === "sm" && "size-8",
+				)}
 			>
 				<Unlink />
 				<span className="sr-only">Remove selected link</span>
@@ -137,7 +141,10 @@ export function LinkAction() {
 					type="button"
 					variant="outline"
 					size="icon"
-					className="dark:bg-transparent bg-transparent"
+					className={cn(
+						"dark:bg-transparent bg-transparent",
+						size === "sm" && "size-8",
+					)}
 					disabled={isSelectionEmpty}
 				>
 					<Link />

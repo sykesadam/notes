@@ -22,7 +22,7 @@ function RouteComponent() {
 	}
 
 	return (
-		<main className="px-4 max-w-4xl mx-auto my-8">
+		<main className="pl-0 pr-4 md:pl-4 max-w-4xl mx-auto my-8">
 			<h1 className="font-black text-3xl md:text-5xl mb-8 text-center">
 				{data.name}
 			</h1>

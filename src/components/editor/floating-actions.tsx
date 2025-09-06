@@ -125,7 +125,7 @@ export const FloatingActions = () => {
 			ref={refs.setFloating}
 			style={floatingStyles}
 			className={cn(
-				"absolute z-50 flex gap-2 bg-background rounded-lg",
+				"absolute z-50 flex gap-1 bg-background rounded-lg",
 				"transition-opacity duration-200 ease-in-out",
 				showActions
 					? "opacity-100 transition"
@@ -134,10 +134,10 @@ export const FloatingActions = () => {
 				isPositioned && "transition-transform duration-200 ease-in-out",
 			)}
 		>
-			<InlineTextActions />
-			<ListActions />
-			<TagChangeActions variant="minimal" />
-			<LinkAction />
+			<InlineTextActions size="sm" />
+			<ListActions size="sm" />
+			<TagChangeActions variant="minimal" size="sm" />
+			<LinkAction size="sm" />
 		</div>
 	);
 };

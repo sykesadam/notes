@@ -54,7 +54,7 @@ export function MenuBar() {
 		<>
 			<div
 				className={cn(
-					"flex gap-2 sticky top-0 py-4",
+					"flex gap-2 sticky top-0 py-4 flex-wrap gap-y-6",
 					!zenMode && "bg-background/85 backdrop-blur-sm",
 					zenMode && "w-fit ml-auto",
 				)}

@@ -29,7 +29,7 @@ function RouteComponent() {
 	};
 
 	return (
-		<div className=" px-4 py-6">
+		<div className="pl-0 pr-4 md:pl-4 py-6">
 			<h1>Notes</h1>
 
 			<div>

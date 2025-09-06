@@ -6,10 +6,10 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import Header from "@/components/header";
+import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
@@ -38,6 +38,16 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 
+	// loader: ({ route }) => {
+	// 	// Access the request from the server-side context
+	// 	const cookies = context.req.raw.headers.get("Cookie");
+
+	// 	// Parse the cookies to get a specific one
+	// 	const userCookie = getCookie(cookies, "user");
+
+	// 	return { userCookie };
+	// },
+
 	shellComponent: RootDocument,
 
 	notFoundComponent: () => <div>404 - Not Found</div>,
@@ -58,12 +68,19 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					<Header />
-					{children}
+					<SidebarProvider>
+						<AppSidebar />
+
+						<div className="w-7 sticky top-0 bottom-0 shrink-0 max-h-dvh flex sticky-0">
+							<SidebarTrigger className="self-end md:self-start" />
+						</div>
+						{/* <Header /> */}
+						{children}
+					</SidebarProvider>
 				</ThemeProvider>
-				<TanStackDevtools
+				{/* <TanStackDevtools
 					config={{
-						position: "bottom-left",
+						position: "middle-right",
 					}}
 					plugins={[
 						{
@@ -72,7 +89,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						},
 						TanStackQueryDevtools,
 					]}
-				/>
+				/> */}
 				<Scripts />
 			</body>
 		</html>

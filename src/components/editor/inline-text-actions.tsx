@@ -25,7 +25,13 @@ const icons = {
 	code: Code,
 };
 
-export const InlineTextActions = ({ className }: { className?: string }) => {
+export const InlineTextActions = ({
+	className,
+	size = "default",
+}: {
+	className?: string;
+	size?: "sm" | "default";
+}) => {
 	const [value, setValue] = useState<string[]>([]);
 	const [editor] = useLexicalComposerContext();
 
@@ -70,6 +76,7 @@ export const InlineTextActions = ({ className }: { className?: string }) => {
 			value={value}
 			onValueChange={handleChange}
 			className={className}
+			size={size}
 		>
 			{possibleTextFormats.map((format) => {
 				const Icon = icons[format];
@@ -79,6 +86,7 @@ export const InlineTextActions = ({ className }: { className?: string }) => {
 						value={format}
 						aria-label={format}
 						variant="outline"
+						size={size}
 					>
 						<Icon />
 					</ToggleGroupItem>

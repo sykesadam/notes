@@ -21,7 +21,7 @@ const icons = {
 	number: ListOrdered,
 };
 
-export function ListActions() {
+export function ListActions({ size = "default" }: { size?: "sm" | "default" }) {
 	const [editor] = useLexicalComposerContext();
 	const [value, setValue] = useState<ListType | "">("");
 
@@ -92,7 +92,12 @@ export function ListActions() {
 	};
 
 	return (
-		<ToggleGroup type="single" value={value} onValueChange={handleChange}>
+		<ToggleGroup
+			type="single"
+			value={value}
+			onValueChange={handleChange}
+			size={size}
+		>
 			{possibleListFormats.map((format) => {
 				const Icon = icons[format];
 				return (
@@ -101,6 +106,7 @@ export function ListActions() {
 						value={format}
 						aria-label={format}
 						variant="outline"
+						size={size}
 					>
 						<Icon />
 					</ToggleGroupItem>
