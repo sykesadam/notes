@@ -1,8 +1,5 @@
-import { cn } from "@/lib/utils";
-import {
-	$createCodeNode,
-	$isCodeNode
-} from "@lexical/code";
+import { $createCodeNode, $isCodeNode } from "@lexical/code";
+import { $isAutoLinkNode, $isLinkNode } from "@lexical/link";
 import { $isListItemNode } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
@@ -26,6 +23,7 @@ import {
 	Quote,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
 	Select,
 	SelectContent,
@@ -37,6 +35,7 @@ import {
 const possibleTags = [
 	{ tag: "p", label: "Paragraph", disabled: false },
 	{ tag: "li", label: "List item", disabled: true },
+	{ tag: "a", label: "Link", disabled: true },
 	{ tag: "h1", label: "Heading 1", disabled: false },
 	{ tag: "h2", label: "Heading 2", disabled: false },
 	{ tag: "h3", label: "Heading 3", disabled: false },
@@ -82,8 +81,6 @@ export const TagChangeActions = ({
 		const selection = $getSelection();
 
 		if (!selection) {
-			console.log("här2?");
-
 			setValue("");
 			return;
 		}
@@ -110,10 +107,11 @@ export const TagChangeActions = ({
 		} else if ($isParagraphNode(node)) {
 			setValue("p");
 		} else if ($isListItemNode(parentNode)) {
-			console.log("HALLÅÅ");
 			setValue("li");
+		} else if ($isLinkNode(parentNode) || $isAutoLinkNode(parentNode)) {
+			console.log("LINKKK");
+			setValue("a");
 		} else {
-			console.warn("fan hit vill man ju inte komma asså");
 			setValue("");
 		}
 	}, []);
@@ -160,7 +158,13 @@ export const TagChangeActions = ({
 
 	return (
 		<Select value={value} onValueChange={handleChange}>
-			<SelectTrigger className={cn(variant === "default" && "w-[170px]")}>
+			<SelectTrigger
+				className={cn(
+					// "!bg-transparent !dark:hover:bg-input/50",
+					"dark:bg-transparent",
+					variant === "default" && "w-[170px]",
+				)}
+			>
 				<SelectValue placeholder={variant === "default" ? "No selection" : "-"}>
 					{value && <Icon id={value} />}
 					{variant === "default" && getLabel(value)}

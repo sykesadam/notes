@@ -146,6 +146,12 @@ code {
 .prose :where(ul > li):has(>ul) {
   list-style-type: none;
 }
+.prose :where(ol > li):has(>ol) {
+  list-style-type: none;
+}
+.prose :where(ol > li):has(>ul) {
+  list-style-type: none;
+}
 
 .prose >
 ul:has(li[role="checkbox"]) {

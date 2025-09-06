@@ -1,5 +1,8 @@
 import { CodeNode } from "@lexical/code";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
+import { TRANSFORMERS } from "@lexical/markdown";
+import { AutoLinkPlugin } from "@lexical/react/LexicalAutoLinkPlugin";
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import {
 	type InitialConfigType,
@@ -9,7 +12,9 @@ import {
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
@@ -17,6 +22,7 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { getEditorSizeLocalStorage } from "@/lib/utils";
 import { AutoFocusPlugin } from "./autofocus-plugin";
 import { MenuBar } from "./menu-bar";
+import { emailMatcher, urlMatcher } from "./utils";
 
 type EditorProps = {
 	onChange?: (content: string) => void;
@@ -42,7 +48,15 @@ const initialConfig: InitialConfigType = {
 export function Editor({ defaultEditorState, onChange }: EditorProps) {
 	const editorConfig: InitialConfigType = {
 		...initialConfig,
-		nodes: [QuoteNode, HeadingNode, CodeNode, ListNode, ListItemNode],
+		nodes: [
+			QuoteNode,
+			HeadingNode,
+			CodeNode,
+			ListNode,
+			ListItemNode,
+			LinkNode,
+			AutoLinkNode,
+		],
 		editorState: defaultEditorState,
 	};
 
@@ -66,10 +80,13 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 					ErrorBoundary={LexicalErrorBoundary}
 				/>
 				<ListPlugin />
+				<LinkPlugin />
+				<AutoLinkPlugin matchers={[emailMatcher, urlMatcher]} />
 				<CheckListPlugin />
 				<TabIndentationPlugin />
 				<AutoFocusPlugin />
 				<HistoryPlugin />
+				<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 				<OnChangePlugin
 					onChange={(editorState) => {
 						onChange?.(JSON.stringify(editorState.toJSON()));
