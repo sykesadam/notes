@@ -23,6 +23,9 @@ function RouteComponent() {
 
 	return (
 		<main className="px-4 max-w-4xl mx-auto my-8">
+			<h1 className="font-black text-3xl md:text-5xl mb-8 text-center">
+				{data.name}
+			</h1>
 			<Editor
 				defaultEditorState={data.editorState ? data.editorState : undefined}
 				onChange={(content) => {

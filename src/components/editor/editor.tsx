@@ -9,18 +9,48 @@ import {
 	type InitialEditorStateType,
 	LexicalComposer,
 } from "@lexical/react/LexicalComposer";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { SelectionAlwaysOnDisplay } from "@lexical/react/LexicalSelectionAlwaysOnDisplay";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
+import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
+import {
+	INSERT_TABLE_COMMAND,
+	TableCellNode,
+	TableNode,
+	TableRowNode,
+} from "@lexical/table";
+import { Table } from "lucide-react";
+import { Button } from "../ui/button";
+
+export function TableAction() {
+	const [editor] = useLexicalComposerContext();
+
+	const insertTable = () => {
+		// Dispatch the command to insert a table with 3 rows and 3 columns
+		editor.dispatchCommand(INSERT_TABLE_COMMAND, {
+			rows: "3",
+			columns: "3",
+		});
+	};
+
+	return (
+		<Button type="button" variant="outline" size="icon" onClick={insertTable}>
+			<Table />
+		</Button>
+	);
+}
+
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { getEditorSizeLocalStorage } from "@/lib/utils";
-import { AutoFocusPlugin } from "./autofocus-plugin";
 import { MenuBar } from "./menu-bar";
 import { emailMatcher, urlMatcher } from "./utils";
 
@@ -56,6 +86,9 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 			ListItemNode,
 			LinkNode,
 			AutoLinkNode,
+			TableNode,
+			TableRowNode,
+			TableCellNode,
 		],
 		editorState: defaultEditorState,
 	};
@@ -81,10 +114,14 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 				/>
 				<ListPlugin />
 				<LinkPlugin />
+				<SelectionAlwaysOnDisplay />
+				{/* <ClickableLinkPlugin newTab /> */}
+				<TablePlugin />
+				<HorizontalRulePlugin />
 				<AutoLinkPlugin matchers={[emailMatcher, urlMatcher]} />
 				<CheckListPlugin />
 				<TabIndentationPlugin />
-				<AutoFocusPlugin />
+				{/* <AutoFocusPlugin /> */}
 				<HistoryPlugin />
 				<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 				<OnChangePlugin

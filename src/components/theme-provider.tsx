@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -28,15 +28,15 @@ export function ThemeProvider({
 	storageKey = "vite-ui-theme",
 	...props
 }: ThemeProviderProps) {
-	 const [theme, setTheme] = useState<Theme>(() => {
-      // Check if we're in the browser
-      if (typeof window !== "undefined") {
-          return (localStorage?.getItem(storageKey) as Theme) || defaultTheme;
-      }
+	const [theme, setTheme] = useState<Theme>(() => {
+		// Check if we're in the browser
+		if (typeof window !== "undefined") {
+			return (localStorage?.getItem(storageKey) as Theme) || defaultTheme;
+		}
 
-      // Return default theme on server
-      return defaultTheme;
-  });
+		// Return default theme on server
+		return defaultTheme;
+	});
 
 	useEffect(() => {
 		const root = window.document.documentElement;
