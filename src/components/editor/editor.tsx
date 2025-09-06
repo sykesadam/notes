@@ -1,5 +1,6 @@
 import { CodeNode } from "@lexical/code";
 import { ListItemNode, ListNode } from "@lexical/list";
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
 import {
 	type InitialConfigType,
 	type InitialEditorStateType,
@@ -32,9 +33,9 @@ const initialConfig: InitialConfigType = {
 			italic: "italic",
 			underline: "underline",
 			strikethrough: "line-through",
-			code: "font-mono bg-gray-100 rounded px-1 inline",
+			code: "font-mono bg-gray-100 rounded px-1 inline dark:text-zinc-900",
 		},
-		code: "font-mono bg-gray-100 rounded px-1 block",
+		code: "font-mono bg-gray-100 rounded px-1 block dark:text-zinc-900",
 	},
 };
 
@@ -65,6 +66,7 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 					ErrorBoundary={LexicalErrorBoundary}
 				/>
 				<ListPlugin />
+				<CheckListPlugin />
 				<TabIndentationPlugin />
 				<AutoFocusPlugin />
 				<HistoryPlugin />

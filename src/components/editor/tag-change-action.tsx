@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import {
-	$createCodeHighlightNode,
 	$createCodeNode,
-	$isCodeNode,
+	$isCodeNode
 } from "@lexical/code";
-import { $isListItemNode, $isListNode } from "@lexical/list";
+import { $isListItemNode } from "@lexical/list";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
 	$createHeadingNode,
@@ -26,7 +26,6 @@ import {
 	Quote,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 import {
 	Select,
 	SelectContent,
@@ -42,8 +41,8 @@ const possibleTags = [
 	{ tag: "h2", label: "Heading 2", disabled: false },
 	{ tag: "h3", label: "Heading 3", disabled: false },
 	{ tag: "h4", label: "Heading 4", disabled: false },
-	{ tag: "h5", label: "Heading 5", disabled: false },
-	{ tag: "code", label: "Code block", disabled: false },
+	// { tag: "h5", label: "Heading 5", disabled: false },
+	{ tag: "code", label: "Code", disabled: false },
 	{ tag: "quote", label: "Quote", disabled: false },
 ] as const;
 

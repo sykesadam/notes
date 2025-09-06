@@ -141,3 +141,55 @@ code {
 		@apply bg-background text-foreground;
 	}
 }
+
+
+.prose :where(ul > li):has(>ul) {
+  list-style-type: none;
+}
+
+.prose >
+ul:has(li[role="checkbox"]) {
+  padding-left: 0 !important;
+}
+
+/* Styling for each list item */
+li[role="checkbox"] {
+  display: flex;
+  align-items: center;
+	outline: none;
+}
+
+/* Create the unchecked checkbox using a pseudo-element */
+li[role="checkbox"]::before {
+  content: '';
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid var(--color-input);
+  background-color: var(--color-background);
+  margin-right: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+	flex-shrink: 0;
+}
+
+/* Styling when the checkbox is checked */
+li[role="checkbox"][aria-checked="true"]::before {
+	content: '';
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%233f3f46' d='M9 16.2l-3.5-3.5a.98.98 0 0 1 0-1.4.98.98 0 0 1 1.4 0L9 13.4l6.1-6.1a.98.98 0 0 1 1.4 0 .98.98 0 0 1 0 1.4l-6.8 6.8a.98.98 0 0 1-1.4 0z'/%3E%3C/svg%3E");
+  background-size: 1.5rem;
+  background-position: 30% 35%;
+  background-repeat: no-repeat;
+	color: inherit;
+  text-align: center;
+}
+
+.prose li[role="checkbox"][aria-checked="true"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M9 16.2l-3.5-3.5a.98.98 0 0 1 0-1.4.98.98 0 0 1 1.4 0L9 13.4l6.1-6.1a.98.98 0 0 1 1.4 0 .98.98 0 0 1 0 1.4l-6.8 6.8a.98.98 0 0 1-1.4 0z'/%3E%3C/svg%3E");
+}
+
+/* Styling for the text of a checked item */
+li[role="checkbox"][aria-checked="true"] > span {
+  text-decoration: line-through;
+  color: var(--color-muted-foreground);
+}
