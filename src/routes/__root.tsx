@@ -9,12 +9,20 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+	getNoteQueryOptions,
+	getNotesQueryOptions,
+	useBackgroundSync,
+} from "@/lib/query-options";
+import { getClientCookie } from "@/lib/utils";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
 }
+
+let didHydrateNotes = false;
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: () => ({
@@ -27,7 +35,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "Notes",
 			},
 		],
 		links: [
@@ -38,15 +46,27 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 
-	// loader: ({ route }) => {
-	// 	// Access the request from the server-side context
-	// 	const cookies = context.req.raw.headers.get("Cookie");
+	ssr: false,
 
-	// 	// Parse the cookies to get a specific one
-	// 	const userCookie = getCookie(cookies, "user");
+	beforeLoad: async ({ context }) => {
+		const { queryClient } = context;
 
-	// 	return { userCookie };
-	// },
+		if (!didHydrateNotes) {
+			const notes = await queryClient.ensureQueryData(getNotesQueryOptions());
+			for (const note of notes) {
+				queryClient.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
+			}
+			didHydrateNotes = true;
+		}
+	},
+
+	loader: () => {
+		const sidebar_state = getClientCookie("sidebar_state") === "true";
+
+		return {
+			sidebar_state,
+		};
+	},
 
 	shellComponent: RootDocument,
 
@@ -61,6 +81,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+	const data = Route.useLoaderData();
+
+	useBackgroundSync();
+
 	return (
 		<html lang="en">
 			<head>
@@ -68,19 +92,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					<SidebarProvider>
+					<SidebarProvider defaultOpen={data?.sidebar_state ?? false}>
 						<AppSidebar />
 
 						<div className="w-7 sticky top-0 bottom-0 shrink-0 max-h-dvh flex sticky-0">
 							<SidebarTrigger className="self-end md:self-start" />
 						</div>
-						{/* <Header /> */}
 						{children}
 					</SidebarProvider>
 				</ThemeProvider>
-				{/* <TanStackDevtools
+				<TanStackDevtools
 					config={{
-						position: "middle-right",
+						position: "bottom-right",
 					}}
 					plugins={[
 						{
@@ -89,7 +112,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						},
 						TanStackQueryDevtools,
 					]}
-				/> */}
+				/>
 				<Scripts />
 			</body>
 		</html>

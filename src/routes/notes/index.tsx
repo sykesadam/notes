@@ -1,22 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Notebook, NotebookPen, NotebookText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getNotesQueryOptions } from "@/hooks/notes";
-import { createNote } from "@/lib/db/notes";
+import { dbCreateNote } from "@/lib/db/local/notes";
+import { getNotesQueryOptions } from "@/lib/query-options";
 
 export const Route = createFileRoute("/notes/")({
-	component: RouteComponent,
+	component: NotesComponent,
 	loader: async () => {},
 });
 
-function RouteComponent() {
+function NotesComponent() {
 	const { data, refetch } = useQuery(getNotesQueryOptions());
 
 	const createNoteHandler = async () => {
 		const name = prompt("Enter note name:");
 		if (name) {
 			// Here you would call a function to create the note in the database
-			const newNoteId = await createNote(name);
+			const newNoteId = await dbCreateNote(name);
 			refetch();
 
 			throw redirect({
@@ -29,11 +30,18 @@ function RouteComponent() {
 	};
 
 	return (
-		<div className="pl-0 pr-4 md:pl-4 py-6">
-			<h1>Notes</h1>
+		<div className="pl-0 pr-4 md:pl-4 py-12 flex flex-col items-center justify-center max-w-4xl mx-auto gap-4">
+			<h1 className="text-5xl font-bold">All notes</h1>
 
-			<div>
-				<Button onClick={createNoteHandler}>Create note</Button>
+			<div className="flex gap-2 mt-6 md:mt-8">
+				<Button type="button" onClick={createNoteHandler}>
+					<NotebookPen />
+					Quick Note
+				</Button>
+				<Button variant="outline" onClick={createNoteHandler}>
+					<NotebookText />
+					Create new Note
+				</Button>
 			</div>
 
 			<div className="grid grid-cols-3 gap-4">

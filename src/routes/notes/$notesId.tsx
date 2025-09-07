@@ -1,7 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Editor } from "@/components/editor/editor";
-import { getNoteQueryOptions, saveNoteMutationOptions } from "@/hooks/notes";
+import {
+	getNoteQueryOptions,
+	saveNoteMutationOptions,
+} from "@/lib/query-options";
 
 export const Route = createFileRoute("/notes/$notesId")({
 	component: RouteComponent,

@@ -1,39 +1,57 @@
-import { createFileRoute } from "@tanstack/react-router";
-import logo from "../logo.svg";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Notebook, NotebookPen, NotebookText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { createNoteMutationOptions } from "@/lib/query-options";
 
 export const Route = createFileRoute("/")({
-	component: App,
+	component: HomeComponent,
 });
 
-function App() {
+function HomeComponent() {
+	const { mutate: createNote } = useMutation(createNoteMutationOptions());
+
+	const createNoteHandler = async () => {
+		// const name = prompt("Enter note name:");
+
+		createNote(
+			{},
+			{
+				onSuccess: (data) => {
+					redirect({
+						to: "/notes/$notesId",
+						params: {
+							notesId: data.id,
+						},
+					});
+				},
+			},
+		);
+	};
+
 	return (
-		<div className="text-center">
-			<header className="min-h-screen flex flex-col items-center justify-center bg-[#282c34] text-white text-[calc(10px+2vmin)]">
-				<img
-					src={logo}
-					className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-					alt="logo"
-				/>
-				<p>
-					Edit <code>src/routes/index.tsx</code> and save to reload.
-				</p>
-				<a
-					className="text-[#61dafb] hover:underline"
-					href="https://reactjs.org"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn React
-				</a>
-				<a
-					className="text-[#61dafb] hover:underline"
-					href="https://tanstack.com"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					Learn TanStack
-				</a>
-			</header>
+		<div className="pl-0 pr-4 md:pl-4 py-12 flex flex-col items-center justify-center max-w-4xl mx-auto gap-4">
+			<h1 className="text-5xl font-bold">Create a note</h1>
+
+			<div className="flex gap-2 mt-6 md:mt-8">
+				<Button type="button" onClick={createNoteHandler}>
+					<NotebookPen />
+					Quick Note
+				</Button>
+				<Button variant="outline" onClick={createNoteHandler}>
+					<NotebookText />
+					Create new Note
+				</Button>
+			</div>
+
+			<div>
+				<Button variant="link" onClick={createNoteHandler} asChild>
+					<Link to={"/notes"}>
+						<Notebook />
+						View Notes
+					</Link>
+				</Button>
+			</div>
 		</div>
 	);
 }
