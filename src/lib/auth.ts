@@ -1,10 +1,14 @@
-import { betterAuth } from "better-auth";
-import Database from "better-sqlite3";
 import { env } from "@/env";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from './db/remote/db';
 
 export const auth = betterAuth({
 	baseURL: env.VITE_URL,
-	database: new Database("./sqlite.db"),
+	database: drizzleAdapter(db, {
+		provider: "sqlite",
+		usePlural: true,
+	}),
 	emailAndPassword: {
 		enabled: true,
 	},
