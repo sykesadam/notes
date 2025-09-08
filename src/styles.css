@@ -4,7 +4,7 @@
 
 @import "tw-animate-css";
 
-@plugin "@tailwindcss/typography";
+@import './prose.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -142,7 +142,7 @@ code {
 }
 
 @layer components {
-	.prose :where(ul > li):has(> ul) {
+	/* .prose :where(ul > li):has(> ul) {
 		list-style-type: none;
 	}
 	.prose :where(ol > li):has(> ol) {
@@ -162,7 +162,7 @@ code {
 
 	.prose table p {
 		margin-inline: 1rem;
-	}
+	} */
 
 	/* Styling for each list item */
 	li[role="checkbox"] {

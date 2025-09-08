@@ -71,7 +71,7 @@ const Icon = ({ id }: { id: string }) => {
 
 export const TagChangeActions = ({
 	variant = "default",
-	size = "sm",
+	size = "default",
 }: {
 	variant?: "minimal" | "default";
 	size?: "sm" | "default";
