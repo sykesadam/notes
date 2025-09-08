@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { setClientCookie } from "@/lib/utils";
 
 type Theme = "dark" | "light" | "system";
 
@@ -24,7 +25,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
 	children,
-	defaultTheme = "system",
+	defaultTheme = "dark",
 	storageKey = "vite-ui-theme",
 	...props
 }: ThemeProviderProps) {
@@ -59,7 +60,7 @@ export function ThemeProvider({
 	const value = {
 		theme,
 		setTheme: (theme: Theme) => {
-			localStorage.setItem(storageKey, theme);
+			setClientCookie(storageKey, theme);
 			setTheme(theme);
 		},
 	};

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { NotebookText, Plus, User } from "lucide-react";
+import { NotebookText, Plus } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -27,7 +27,7 @@ const items = [
 		url: "/notes",
 		icon: NotebookText,
 	},
-];
+] as const;
 
 export function AppSidebar() {
 	const navigate = useNavigate();
@@ -91,10 +91,10 @@ export function AppSidebar() {
 							{items.map((item) => (
 								<SidebarMenuItem key={item.title}>
 									<SidebarMenuButton asChild>
-										<a href={item.url}>
+										<Link to={item.url}>
 											<item.icon />
 											<span>{item.title}</span>
-										</a>
+										</Link>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
 							))}

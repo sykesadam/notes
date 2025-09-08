@@ -1,9 +1,3 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { $getSession, $getSidebarState } from "@/functions";
-import { hydrateNotesFromDB } from "@/lib/hydrateAppState";
-import { useBackgroundSync } from "@/lib/query-options";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
@@ -13,6 +7,12 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { $getSession, $getSidebarState, $getThemeState } from "@/functions";
+import { hydrateNotesFromDB } from "@/lib/hydrateAppState";
+import { useBackgroundSync } from "@/lib/query-options";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
@@ -51,6 +51,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		return {
 			session: await $getSession(context.queryClient),
 			sidebarState: $getSidebarState(),
+			themeState: $getThemeState() || undefined,
 		};
 	},
 
@@ -62,7 +63,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 	pendingComponent: () => <div>Loading bby</div>,
 
-	errorComponent: ({error}) => (
+	errorComponent: ({ error }) => (
 		<div>
 			<h1>Error {error.name}</h1>
 			<pre>{error.message}</pre>
@@ -71,15 +72,17 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
-	const { sidebarState } = Route.useRouteContext();
+	const { sidebarState, themeState = "dark" } = Route.useRouteContext();
+
+	console.log("themeState", themeState);
 
 	return (
-		<html lang="en">
+		<html lang="en" className={themeState}>
 			<head>
 				<HeadContent />
 			</head>
 			<body>
-				<ThemeProvider>
+				<ThemeProvider defaultTheme={themeState}>
 					<SidebarProvider defaultOpen={sidebarState}>
 						<AppSidebar />
 
@@ -108,7 +111,9 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-	useBackgroundSync();
+	const { session } = Route.useRouteContext();
+
+	useBackgroundSync(!!session.session);
 
 	return <Outlet />;
 }

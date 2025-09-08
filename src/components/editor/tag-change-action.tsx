@@ -111,7 +111,6 @@ export const TagChangeActions = ({
 		} else if ($isListItemNode(parentNode)) {
 			setValue("li");
 		} else if ($isLinkNode(parentNode) || $isAutoLinkNode(parentNode)) {
-			console.log("LINKKK");
 			setValue("a");
 		} else {
 			setValue("");

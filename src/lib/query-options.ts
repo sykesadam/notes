@@ -104,10 +104,11 @@ export function deleteNoteMutationOptions() {
 	});
 }
 
-export function useBackgroundSync() {
+export function useBackgroundSync(enabled: boolean) {
 	const qc = useQueryClient();
 
 	return useQuery({
+		enabled: enabled,
 		queryKey: ["syncNotes"],
 		queryFn: async () => {
 			const result = await syncNotes();

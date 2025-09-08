@@ -46,3 +46,11 @@ export const $getSidebarState = createIsomorphicFn()
 
 		return sidebarState === "true";
 	});
+
+export const $getThemeState = createIsomorphicFn()
+	.client(() => {
+		return getClientCookie("vite-ui-theme") as "dark" | "light" | null;
+	})
+	.server(() => {
+		return getCookie("vite-ui-theme") as "dark" | "light" | null;
+	});
