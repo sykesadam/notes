@@ -18,23 +18,13 @@ const queryKeys = {
 	note: (id: string) => ["note", id] as const,
 };
 
-// if (!didHydrateNotes) {
-// 	const notes = qc.ensureQueryData(getNotesQueryOptions());
-// 	for (const note of notes) {
-// 		queryClient.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
-// 	}
-// 	didHydrateNotes = true;
-// }
-
 export const hydrateCache = () => {
 	const qc = useQueryClient();
 
 	return useQuery({
 		queryKey: ["app-hydration"],
 		queryFn: async () => {
-			const notes = (await dbGetNotes())
-				.filter((n) => !n.deleted)
-				.sort((a, b) => b.updatedAt - a.updatedAt);
+			const notes = (await dbGetNotes()).filter((n) => !n.deleted);
 
 			qc.setQueryData(getNotesQueryOptions().queryKey, notes);
 
@@ -55,9 +45,7 @@ export const getNotesQueryOptions = () =>
 		queryKey: queryKeys.notes,
 		queryFn: async () => {
 			const notes = await dbGetNotes();
-			return notes
-				.filter((n) => !n.deleted)
-				.sort((a, b) => b.updatedAt - a.updatedAt);
+			return notes.filter((n) => !n.deleted);
 		},
 	});
 
@@ -130,7 +118,8 @@ export function useBackgroundSync() {
 
 			return result;
 		},
-		refetchInterval: 15_000, // every 15 seconds
+		retry: 2,
+		refetchInterval: 120_000, // every 2 minutes
 		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
 		staleTime: Infinity,
