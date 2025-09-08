@@ -17,7 +17,6 @@ interface GetRemoteNotes {
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
 	async ({ next }) => {
-		console.log("getWebRequest().headers", getWebRequest().headers);
 		const session = await auth.api.getSession({
 			headers: getWebRequest().headers,
 			query: {
@@ -47,24 +46,22 @@ export const serverNotesSyncFn = createServerFn({
 
 		const appliedIds: string[] = [];
 
-		// 1️⃣ Apply local changes → remote
+		// 1️⃣ Apply incoming local changes → remote DB (LWW)
 		for (const change of changes) {
-			// Upsert payload
-			await pushLocalNote(
-				{
-					...change.payload,
-					id: change.noteId,
-				},
+			const result = await pushLocalNote(
+				{ ...change.payload, id: change.noteId },
 				userId,
 			);
 
-			appliedIds.push(change.noteId);
+			if (result.applied) {
+				appliedIds.push(change.noteId);
+			}
 		}
 
-		// 2️⃣ Pull remote changes since last sync
+		// 2️⃣ Pull remote notes since last sync
 		const pullNotes = await pullRemoteNotes(userId, lastPulledAt);
 
-		// 3️⃣ New sync cursor (timestamp of this sync)
+		// 3️⃣ New sync cursor (timestamp)
 		const cursor = Date.now();
 
 		return {
@@ -90,39 +87,45 @@ export const syncNotes = async () => {
 		createdAt: item.createdAt,
 	}));
 
+	// 3️⃣ Call server sync
 	const response = await serverNotesSyncFn({
-		data: {
-			lastPulledAt,
-			changes: payload,
-		},
+		data: { lastPulledAt, changes: payload },
 	});
 
-	if (!response) {
-		return { success: false };
-	}
+	if (!response) return { success: false, notes: [] };
 
-	const { appliedIds, pull, cursor } = response;
+	const { appliedIds: serverAppliedIds, pull, cursor } = response;
 
-	// 5️⃣ Remove applied items from outbox
 	const tx = db.transaction(["outbox", "notes", "metadata"], "readwrite");
+	const notesStore = tx.objectStore("notes");
+	const outboxStore = tx.objectStore("outbox");
 
-	for (const id of appliedIds) {
-		await tx.objectStore("outbox").delete(id);
+	// 4️⃣ Build local notes map
+	const localNotesMap: Record<string, (typeof pull.notes)[0]> = {};
+	for (const note of await notesStore.getAll()) {
+		localNotesMap[note.id] = note;
 	}
 
-	// Merge pulled notes
-	const notesStore = tx.objectStore("notes");
+	console.log(pull.notes);
+
+	// 5️⃣ Merge pulled notes using Last-Write-Wins
 	for (const remoteNote of pull.notes) {
-		const local = await notesStore.get(remoteNote.id);
+		const local = localNotesMap[remoteNote.id];
 		if (!local || remoteNote.updatedAt >= local.updatedAt) {
-			notesStore.put(remoteNote);
+			await notesStore.put(remoteNote);
+			localNotesMap[remoteNote.id] = remoteNote;
 		}
 	}
 
-	// Update lastPulledAt
-	await tx.objectStore("metadata").put({ id: "sync", lastPulledAt: cursor });
+	// 6️⃣ Remove outbox items for notes successfully pushed
+	for (const id of serverAppliedIds) {
+		await outboxStore.delete(id);
+	}
 
+	// 7️⃣ Update lastPulledAt
+	await tx.objectStore("metadata").put({ id: "sync", lastPulledAt: cursor });
 	await tx.done;
 
-	return { success: true };
+	// 8️⃣ Return updated notes
+	return { success: true, notes: Object.values(localNotesMap) };
 };

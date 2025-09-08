@@ -63,34 +63,42 @@ export const dbCreateNote = async (name?: string, editorState = "") => {
 	const notesStore = tx.objectStore("notes");
 	const outboxStore = tx.objectStore("outbox");
 
-	let noteName = name;
-
-	if (!noteName) {
-		noteName = generateTitle();
-	}
-
 	const timestamp = Date.now();
 	const note = {
 		id: nanoid(),
-		name: noteName,
+		name: name ?? generateTitle(),
 		editorState,
 		createdAt: timestamp,
 		updatedAt: timestamp,
 		deleted: false,
 	};
 
+	// Save note locally
 	await notesStore.put(note);
 
-	await outboxStore.add({
-		id: nanoid(),
-		op: "upsert",
+	// Upsert outbox item
+	const allOutbox = await outboxStore.getAll();
+	const existingOutbox = allOutbox.find((item) => item.noteId === note.id);
+
+	// const outboxItem = {
+	// 	id: existingOutbox?.id ?? nanoid(),
+	// 	noteId: note.id,
+	// 	op: "upsert",
+	// 	payload: note,
+	// 	createdAt: timestamp,
+	// 	attempt: 0,
+	// };
+
+	await outboxStore.put({
+		id: existingOutbox?.id ?? nanoid(),
 		noteId: note.id,
+		op: "upsert",
 		payload: note,
 		createdAt: timestamp,
 		attempt: 0,
 	});
-
 	await tx.done;
+
 	return note;
 };
 
@@ -101,41 +109,29 @@ export const dbSaveNote = async (id: string, editorState: string) => {
 	const outboxStore = tx.objectStore("outbox");
 
 	const note = await notesStore.get(id);
-
 	if (!note) throw new Error(`Note '${id}' not found`);
 
 	const timestamp = Date.now();
-	const updated = { ...note, editorState, updatedAt: timestamp };
+	const updatedNote = { ...note, editorState, updatedAt: timestamp };
 
-	await notesStore.put(updated);
+	// Update local note
+	await notesStore.put(updatedNote);
 
-	// Check if there is already an outbox item for this note
+	// Upsert outbox item
 	const allOutbox = await outboxStore.getAll();
-	const existingOutboxItem = allOutbox.find((item) => item.noteId === note.id);
+	const existingOutbox = allOutbox.find((item) => item.noteId === id);
 
-	if (existingOutboxItem) {
-		// Replace the payload of the existing outbox item
-		await outboxStore.put({
-			...existingOutboxItem,
-			payload: note,
-			createdAt: timestamp,
-			op: "upsert",
-			attempt: 0,
-		});
-	} else {
-		// Create a new outbox item
-		await outboxStore.put({
-			id: nanoid(),
-			noteId: note.id,
-			op: "upsert",
-			payload: note,
-			createdAt: timestamp,
-			attempt: 0,
-		});
-	}
-
+	await outboxStore.put({
+		id: existingOutbox?.id ?? nanoid(),
+		noteId: id,
+		op: "upsert",
+		payload: updatedNote,
+		createdAt: timestamp,
+		attempt: 0,
+	});
 	await tx.done;
-	return updated;
+
+	return updatedNote;
 };
 
 export const dbDeleteNote = async (id: string) => {
@@ -144,6 +140,7 @@ export const dbDeleteNote = async (id: string) => {
 	const notesStore = tx.objectStore("notes");
 	const outboxStore = tx.objectStore("outbox");
 
+	// Fetch note locally
 	const note = await notesStore.get(id);
 	if (!note) throw new Error(`Could not delete note ${id}`);
 
@@ -155,30 +152,18 @@ export const dbDeleteNote = async (id: string) => {
 
 	// Check if outbox already has an item for this note
 	const allOutbox = await outboxStore.getAll();
-	const existingOutboxItem = allOutbox.find((item) => item.noteId === id);
+	const existingOutbox = allOutbox.find((item) => item.noteId === id);
 
-	if (existingOutboxItem) {
-		// Update existing outbox item with delete operation
-		await outboxStore.put({
-			...existingOutboxItem,
-			payload: tombstone,
-			op: "delete",
-			createdAt: timestamp,
-			attempt: 0,
-		});
-	} else {
-		// Create new outbox item
-		await outboxStore.put({
-			id: nanoid(),
-			noteId: id,
-			op: "delete",
-			payload: tombstone,
-			createdAt: timestamp,
-			attempt: 0,
-		});
-	}
-
+	await outboxStore.put({
+		id: existingOutbox?.id ?? nanoid(),
+		noteId: id,
+		op: "delete",
+		payload: tombstone,
+		createdAt: timestamp,
+		attempt: 0,
+	});
 	await tx.done;
+
 	return tombstone;
 };
 

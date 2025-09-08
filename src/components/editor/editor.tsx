@@ -130,6 +130,7 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 				<HistoryPlugin />
 				<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 				<OnChangePlugin
+					ignoreSelectionChange={true}
 					onChange={(editorState) => {
 						onChange?.(JSON.stringify(editorState.toJSON()));
 					}}

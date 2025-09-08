@@ -113,13 +113,19 @@ export function useBackgroundSync() {
 			const result = await syncNotes();
 
 			if (result.success) {
+				console.log("notes", result.notes);
 				qc.invalidateQueries(getNotesQueryOptions());
+				qc.setQueryData(getNotesQueryOptions().queryKey, result.notes);
+
+				result.notes.forEach((note) => {
+					qc.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
+				});
 			}
 
 			return result;
 		},
 		retry: 2,
-		refetchInterval: 120_000, // every 2 minutes
+		refetchInterval: 10_000, // every 2 minutes
 		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
 		staleTime: Infinity,

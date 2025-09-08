@@ -1,13 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-	createFileRoute,
-	Link,
-	redirect,
-	useNavigate,
-} from "@tanstack/react-router";
-import { Notebook, NotebookPen, NotebookText } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { NotebookPen, NotebookText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { dbCreateNote } from "@/lib/db/local/notes";
 import {
 	createNoteMutationOptions,
 	getNotesQueryOptions,
