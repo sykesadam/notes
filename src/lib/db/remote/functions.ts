@@ -5,7 +5,7 @@ import { notes } from "./schema";
 
 export async function pullRemoteNotes(userId: string, lastPulledAt: number) {
 	const rows = await db.query.notes.findMany({
-		where: (n, { eq }) => eq(n.userId, userId),
+		where: (n, { eq, and }) => and(eq(n.userId, userId), eq(n.deleted, false)),
 	});
 
 	return rows.map(remoteToLocal);

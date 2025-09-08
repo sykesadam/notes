@@ -51,7 +51,6 @@ export const BlockTextActions = ({ className }: { className?: string }) => {
 	}, [editor, updateToolbar]);
 
 	const handleChange = (val: Icons) => {
-		console.log("val??", val);
 		setValue(val);
 
 		editor.update(() => {

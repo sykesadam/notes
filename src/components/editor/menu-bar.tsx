@@ -29,7 +29,6 @@ const EditorResize = () => {
 			| HTMLElement
 			| undefined;
 		if (el) {
-			console.log(el.dataset);
 			el.dataset.editorSize = newValue;
 		}
 	};

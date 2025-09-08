@@ -106,8 +106,6 @@ export const syncNotes = async () => {
 		localNotesMap[note.id] = note;
 	}
 
-	console.log(pull.notes);
-
 	// 5️⃣ Merge pulled notes using Last-Write-Wins
 	for (const remoteNote of pull.notes) {
 		const local = localNotesMap[remoteNote.id];

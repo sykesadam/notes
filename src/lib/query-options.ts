@@ -113,11 +113,14 @@ export function useBackgroundSync() {
 			const result = await syncNotes();
 
 			if (result.success) {
-				console.log("notes", result.notes);
 				qc.invalidateQueries(getNotesQueryOptions());
-				qc.setQueryData(getNotesQueryOptions().queryKey, result.notes);
+				qc.setQueryData(
+					getNotesQueryOptions().queryKey,
+					result.notes.filter((note) => !note.deleted),
+				);
 
 				result.notes.forEach((note) => {
+					if (note.deleted) return;
 					qc.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
 				});
 			}

@@ -43,14 +43,12 @@ export function ListActions({ size = "default" }: { size?: "sm" | "default" }) {
 		}
 
 		if ($isListItemNode(parentNode)) {
-			console.log("parent is list item");
 			const grandParent = parentNode.getParent();
 
 			if ($isListNode(grandParent)) {
 				setValue(grandParent.getListType());
 			}
 		} else if ($isListItemNode(node)) {
-			console.log("node is list item");
 			const grandParent = node.getParent();
 
 			if ($isListNode(grandParent)) {
