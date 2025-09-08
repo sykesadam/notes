@@ -54,22 +54,24 @@ const serverNotesSyncFn = createServerFn()
 		// 	cursor,
 		// };
 
-		return {
-			appliedIds,
-			pull: {
-				notes: [
-					{
-						id: "string",
-						name: "string",
-						editorState: "string",
-						createdAt: 123,
-						updatedAt: 123,
-						deleted: false,
-					},
-				],
-			},
-			cursor,
-		};
+		// return {
+		// 	appliedIds,
+		// 	pull: {
+		// 		notes: [
+		// 			{
+		// 				id: "string",
+		// 				name: "string",
+		// 				editorState: "string",
+		// 				createdAt: 123,
+		// 				updatedAt: 123,
+		// 				deleted: false,
+		// 			},
+		// 		],
+		// 	},
+		// 	cursor,
+		// };
+
+		return null;
 	});
 
 export const syncNotes = async () => {
@@ -88,6 +90,10 @@ export const syncNotes = async () => {
 		createdAt: item.createdAt,
 	}));
 
+	return {
+		success: false,
+	};
+
 	const response = await serverNotesSyncFn({
 		data: {
 			lastPulledAt,
@@ -104,18 +110,18 @@ export const syncNotes = async () => {
 	// 5️⃣ Remove applied items from outbox
 	const tx = db.transaction(["outbox", "notes", "metadata"], "readwrite");
 
-	for (const id of appliedIds) {
-		await tx.objectStore("outbox").delete(id);
-	}
+	// for (const id of appliedIds) {
+	// await tx.objectStore("outbox").delete(id);
+	// }
 
 	// Merge pulled notes
-	const notesStore = tx.objectStore("notes");
-	for (const remoteNote of pull.notes) {
-		const local = await notesStore.get(remoteNote.id);
-		if (!local || remoteNote.updatedAt >= local.updatedAt) {
-			await notesStore.put(remoteNote);
-		}
-	}
+	// const notesStore = tx.objectStore("notes");
+	// for (const remoteNote of pull.notes) {
+	// 	const local = await notesStore.get(remoteNote.id);
+	// 	if (!local || remoteNote.updatedAt >= local.updatedAt) {
+	// 		await notesStore.put(remoteNote);
+	// 	}
+	// }
 
 	// Update lastPulledAt
 	await tx.objectStore("metadata").put({ id: "sync", lastPulledAt: cursor });

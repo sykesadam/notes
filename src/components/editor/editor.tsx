@@ -51,6 +51,7 @@ export function TableAction() {
 
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { getEditorSizeLocalStorage } from "@/lib/utils";
+import { AutoFocusPlugin } from "./autofocus-plugin";
 import { MenuBar } from "./menu-bar";
 import { emailMatcher, urlMatcher } from "./utils";
 
@@ -100,14 +101,18 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 			<div
 				data-id="editor-wrapper"
 				data-editor-size={getEditorSizeLocalStorage()}
-				className="mt-8 mx-auto w-full data-[editor-size=narrow]:max-w-prose"
+				className="mt-8 relative mx-auto w-full data-[editor-size=narrow]:max-w-prose"
 			>
 				<RichTextPlugin
 					contentEditable={
 						<ContentEditable
 							className="w-full rounded-md outline-none"
 							aria-placeholder={"Start typing..."}
-							placeholder={<div>Start typing...</div>}
+							placeholder={
+								<div className="text-muted-foreground absolute left-0 top-0 pointer-events-none animate-pulse">
+									Start typing...
+								</div>
+							}
 						/>
 					}
 					ErrorBoundary={LexicalErrorBoundary}
@@ -121,7 +126,7 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 				<AutoLinkPlugin matchers={[emailMatcher, urlMatcher]} />
 				<CheckListPlugin />
 				<TabIndentationPlugin />
-				{/* <AutoFocusPlugin /> */}
+				<AutoFocusPlugin />
 				<HistoryPlugin />
 				<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 				<OnChangePlugin

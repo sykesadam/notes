@@ -18,7 +18,7 @@ function RouteComponent() {
 	const { notesId } = Route.useParams();
 	const { data } = useQuery(getNoteQueryOptions(notesId));
 
-	const saveNoteMutation = useMutation(saveNoteMutationOptions(notesId));
+	const saveNoteMutation = useMutation(saveNoteMutationOptions());
 
 	if (!data) {
 		throw notFound();
@@ -32,7 +32,7 @@ function RouteComponent() {
 			<Editor
 				defaultEditorState={data.editorState ? data.editorState : undefined}
 				onChange={(content) => {
-					saveNoteMutation.mutate(content);
+					saveNoteMutation.mutate({ id: notesId, editorState: content });
 				}}
 			/>
 		</main>

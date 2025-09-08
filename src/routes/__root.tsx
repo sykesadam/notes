@@ -1,30 +1,27 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { $getSession, $getSidebarState } from "@/functions";
+import { hydrateNotesFromDB } from "@/lib/hydrateAppState";
+import { useBackgroundSync } from "@/lib/query-options";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
+	Outlet,
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import {
-	getNoteQueryOptions,
-	getNotesQueryOptions,
-	useBackgroundSync,
-} from "@/lib/query-options";
-import { getClientCookie } from "@/lib/utils";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
-interface MyRouterContext {
+export interface RouterContext {
 	queryClient: QueryClient;
+	session: null;
 }
 
-let didHydrateNotes = false;
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRouteWithContext<RouterContext>()({
 	head: () => ({
 		meta: [
 			{
@@ -46,44 +43,35 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 
-	ssr: false,
-
 	beforeLoad: async ({ context }) => {
-		const { queryClient } = context;
-
-		if (!didHydrateNotes) {
-			const notes = await queryClient.ensureQueryData(getNotesQueryOptions());
-			for (const note of notes) {
-				queryClient.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
-			}
-			didHydrateNotes = true;
+		if (typeof window !== "undefined") {
+			await hydrateNotesFromDB(context.queryClient);
 		}
-	},
-
-	loader: () => {
-		const sidebar_state = getClientCookie("sidebar_state") === "true";
 
 		return {
-			sidebar_state,
+			session: await $getSession(context.queryClient),
+			sidebarState: $getSidebarState(),
 		};
 	},
 
-	shellComponent: RootDocument,
+	shellComponent: RootShell,
+
+	component: RootComponent,
 
 	notFoundComponent: () => <div>404 - Not Found</div>,
 
-	errorComponent: ({ error }) => (
+	pendingComponent: () => <div>Loading bby</div>,
+
+	errorComponent: ({error}) => (
 		<div>
-			<h1>Error</h1>
+			<h1>Error {error.name}</h1>
 			<pre>{error.message}</pre>
 		</div>
 	),
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
-	const data = Route.useLoaderData();
-
-	useBackgroundSync();
+function RootShell({ children }: { children: React.ReactNode }) {
+	const { sidebarState } = Route.useRouteContext();
 
 	return (
 		<html lang="en">
@@ -92,7 +80,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					<SidebarProvider defaultOpen={data?.sidebar_state ?? false}>
+					<SidebarProvider defaultOpen={sidebarState}>
 						<AppSidebar />
 
 						<div className="w-7 sticky top-0 bottom-0 shrink-0 max-h-dvh flex sticky-0">
@@ -117,4 +105,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</body>
 		</html>
 	);
+}
+
+function RootComponent() {
+	useBackgroundSync();
+
+	return <Outlet />;
 }

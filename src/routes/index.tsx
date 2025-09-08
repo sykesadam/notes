@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Notebook, NotebookPen, NotebookText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createNoteMutationOptions } from "@/lib/query-options";
@@ -9,16 +9,15 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
+	const navigate = useNavigate();
 	const { mutate: createNote } = useMutation(createNoteMutationOptions());
 
 	const createNoteHandler = async () => {
-		// const name = prompt("Enter note name:");
-
 		createNote(
 			{},
 			{
 				onSuccess: (data) => {
-					redirect({
+					navigate({
 						to: "/notes/$notesId",
 						params: {
 							notesId: data.id,
@@ -45,8 +44,8 @@ function HomeComponent() {
 			</div>
 
 			<div>
-				<Button variant="link" onClick={createNoteHandler} asChild>
-					<Link to={"/notes"}>
+				<Button variant="link" asChild>
+					<Link to="/notes">
 						<Notebook />
 						View Notes
 					</Link>

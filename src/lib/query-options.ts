@@ -18,6 +18,37 @@ const queryKeys = {
 	note: (id: string) => ["note", id] as const,
 };
 
+// if (!didHydrateNotes) {
+// 	const notes = qc.ensureQueryData(getNotesQueryOptions());
+// 	for (const note of notes) {
+// 		queryClient.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
+// 	}
+// 	didHydrateNotes = true;
+// }
+
+export const hydrateCache = () => {
+	const qc = useQueryClient();
+
+	return useQuery({
+		queryKey: ["app-hydration"],
+		queryFn: async () => {
+			const notes = (await dbGetNotes())
+				.filter((n) => !n.deleted)
+				.sort((a, b) => b.updatedAt - a.updatedAt);
+
+			qc.setQueryData(getNotesQueryOptions().queryKey, notes);
+
+			for (const note of notes) {
+				qc.setQueryData(getNoteQueryOptions(note.id).queryKey, note);
+			}
+
+			return {
+				success: true,
+			};
+		},
+	});
+};
+
 // Get all notes
 export const getNotesQueryOptions = () =>
 	queryOptions({

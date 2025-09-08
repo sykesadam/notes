@@ -1,9 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
 import { Notebook, NotebookPen, NotebookText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { dbCreateNote } from "@/lib/db/local/notes";
-import { getNotesQueryOptions } from "@/lib/query-options";
+import {
+	createNoteMutationOptions,
+	getNotesQueryOptions,
+} from "@/lib/query-options";
 
 export const Route = createFileRoute("/notes/")({
 	component: NotesComponent,
@@ -11,22 +19,24 @@ export const Route = createFileRoute("/notes/")({
 });
 
 function NotesComponent() {
-	const { data, refetch } = useQuery(getNotesQueryOptions());
+	const navigate = useNavigate();
+	const { data } = useQuery(getNotesQueryOptions());
+	const { mutate: createNote } = useMutation(createNoteMutationOptions());
 
 	const createNoteHandler = async () => {
-		const name = prompt("Enter note name:");
-		if (name) {
-			// Here you would call a function to create the note in the database
-			const newNoteId = await dbCreateNote(name);
-			refetch();
-
-			throw redirect({
-				to: "/notes/$notesId",
-				params: {
-					notesId: newNoteId,
+		createNote(
+			{},
+			{
+				onSuccess: (data) => {
+					navigate({
+						to: "/notes/$notesId",
+						params: {
+							notesId: data.id,
+						},
+					});
 				},
-			});
-		}
+			},
+		);
 	};
 
 	return (

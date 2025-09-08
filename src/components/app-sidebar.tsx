@@ -1,5 +1,6 @@
-import { Link } from "@tanstack/react-router";
-import { NotebookText, Plus } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { NotebookText, Plus, User } from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -13,7 +14,12 @@ import {
 	SidebarMenuItem,
 	SidebarSeparator,
 } from "@/components/ui/sidebar";
+import {
+	createNoteMutationOptions,
+	getNotesQueryOptions,
+} from "@/lib/query-options";
 import { ModeToggle } from "./mode-toggle";
+import { ProfileButton } from "./profile-button";
 
 const items = [
 	{
@@ -22,40 +28,58 @@ const items = [
 		icon: NotebookText,
 	},
 ];
-const notes = [
-	{
-		title: "Najs",
-		id: "wzZDMM_zlH7pRs_hX9Btr",
-		// icon: NotebookText,
-	},
-] as const;
 
 export function AppSidebar() {
+	const navigate = useNavigate();
+	const { data, isPending } = useQuery(getNotesQueryOptions());
+	const { mutate: createNote } = useMutation(createNoteMutationOptions());
+
+	const createNoteHandler = async () => {
+		// const name = prompt("Enter note name:");
+
+		createNote(
+			{},
+			{
+				onSuccess: (data) => {
+					navigate({
+						to: "/notes/$notesId",
+						params: {
+							notesId: data.id,
+						},
+					});
+				},
+			},
+		);
+	};
+
 	return (
 		<Sidebar>
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel>Recent notes</SidebarGroupLabel>
-					<SidebarGroupAction title="Add note">
+					<SidebarGroupAction title="Add note" onClick={createNoteHandler}>
 						<Plus />
 						<span className="sr-only">Add note</span>
 					</SidebarGroupAction>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{notes.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<Link
-											to="/notes/$notesId"
-											params={{
-												notesId: item.id,
-											}}
-										>
-											{item.title}
-										</Link>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
+							{isPending ? <SidebarMenuItem>Loading...</SidebarMenuItem> : null}
+							{data
+								? data.map((item) => (
+										<SidebarMenuItem key={item.id}>
+											<SidebarMenuButton asChild>
+												<Link
+													to="/notes/$notesId"
+													params={{
+														notesId: item.id,
+													}}
+												>
+													{item.name}
+												</Link>
+											</SidebarMenuButton>
+										</SidebarMenuItem>
+									))
+								: null}
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
@@ -80,7 +104,8 @@ export function AppSidebar() {
 			</SidebarContent>
 			<SidebarFooter>
 				<SidebarMenu>
-					<SidebarMenuItem className="flex justify-end">
+					<SidebarMenuItem className="flex justify-end gap-2">
+						<ProfileButton />
 						<ModeToggle />
 					</SidebarMenuItem>
 				</SidebarMenu>
