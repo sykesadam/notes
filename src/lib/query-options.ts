@@ -92,7 +92,7 @@ export const saveNoteMutationOptions = () => {
 };
 
 // Delete note
-export function useDeleteNote() {
+export function deleteNoteMutationOptions() {
 	const qc = useQueryClient();
 
 	return mutationOptions({
@@ -125,7 +125,7 @@ export function useBackgroundSync() {
 			return result;
 		},
 		retry: 2,
-		refetchInterval: 10_000, // every 2 minutes
+		refetchInterval: 120_000, // every 2 minutes
 		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
 		staleTime: Infinity,
