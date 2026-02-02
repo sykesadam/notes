@@ -1,8 +1,11 @@
 import {
+	autoPlacement,
 	autoUpdate,
 	flip,
+	limitShift,
 	offset,
 	shift,
+	size,
 	useFloating,
 } from "@floating-ui/react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
@@ -27,10 +30,34 @@ export const FloatingActions = () => {
 	const [isPositioned, setIsPositioned] = useState(false);
 	const isTypingRef = useRef(false);
 
+	const editorWidth = editor.getRootElement()?.clientWidth || 0;
+
 	const { refs, floatingStyles } = useFloating({
 		whileElementsMounted: autoUpdate,
 		placement: "top",
-		middleware: [offset(10), flip({ padding: 10 }), shift({ padding: 10 })],
+		middleware: [
+			offset(10),
+
+			size({
+				apply({ elements }) {
+					Object.assign(elements.floating.style, {
+						maxWidth: editorWidth + "px",
+						width: editorWidth + "px",
+					});
+				},
+			}),
+			shift({
+				padding: {
+					left: editor.getRootElement()?.getBoundingClientRect().left || 0,
+					right:
+						window.innerWidth -
+							(editor.getRootElement()?.getBoundingClientRect().left || 0) -
+							editorWidth || 0,
+				},
+				crossAxis: false,
+				limiter: limitShift(),
+			}),
+		],
 	});
 
 	const hideMenu = useCallback(() => {
@@ -56,8 +83,21 @@ export const FloatingActions = () => {
 			}
 
 			const domRange = nativeSelection.getRangeAt(0);
+			let rect = domRange.getBoundingClientRect();
+
+			if (rect.width === 0 && rect.height === 0) {
+				// If selection is empty (cursor in empty paragraph), use cursor position
+				const span = document.createElement("span");
+				span.textContent = "|";
+				span.style.position = "absolute";
+				span.style.visibility = "hidden";
+				const tempRange = domRange.cloneRange();
+				tempRange.insertNode(span);
+				rect = span.getBoundingClientRect();
+				span.parentNode?.removeChild(span);
+			}
 			refs.setReference({
-				getBoundingClientRect: () => domRange.getBoundingClientRect(),
+				getBoundingClientRect: () => rect,
 			});
 			setShowActions(true);
 			setIsPositioned(true);
@@ -101,13 +141,12 @@ export const FloatingActions = () => {
 			() => {
 				// We use a timeout to allow the KEY_DOWN_COMMAND to run first.
 				// This helps us distinguish a selection change from typing vs. a click.
-				setTimeout(() => {
-					if (isTypingRef.current) {
-						isTypingRef.current = false; // Reset the flag
-						return;
-					}
-					updateMenu();
-				}, 50); // A small delay is enough
+				if (isTypingRef.current) {
+					isTypingRef.current = false;
+					return false;
+				}
+
+				updateMenu();
 
 				return false;
 			},
@@ -123,15 +162,17 @@ export const FloatingActions = () => {
 	return (
 		<div
 			ref={refs.setFloating}
-			style={floatingStyles}
+			style={{
+				...floatingStyles,
+			}}
 			className={cn(
+				"overflow-x-auto",
 				"absolute z-50 flex gap-1 bg-background rounded-lg",
-				"transition-opacity duration-200 ease-in-out",
+				"transition-transform duration-100 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
 				showActions
 					? "opacity-100 transition"
 					: "opacity-0 pointer-events-none",
 				isSelecting && "pointer-events-none",
-				isPositioned && "transition-transform duration-200 ease-in-out",
 			)}
 		>
 			<InlineTextActions size="sm" />

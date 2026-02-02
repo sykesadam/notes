@@ -101,7 +101,7 @@ export function Editor({ defaultEditorState, onChange }: EditorProps) {
 			<div
 				data-id="editor-wrapper"
 				data-editor-size={getEditorSizeLocalStorage()}
-				className="mt-8 relative mx-auto w-full data-[editor-size=narrow]:max-w-prose"
+				className="mt-8 relative mx-auto w-full data-[editor-size=narrow]:max-w-prose pb-8"
 			>
 				<RichTextPlugin
 					contentEditable={
