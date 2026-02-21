@@ -129,7 +129,7 @@ export function useBackgroundSync(enabled: boolean) {
 			return result;
 		},
 		retry: 2,
-		refetchInterval: 120_000, // every 2 minutes
+		refetchInterval: 20_000, // every 2 seconds
 		refetchOnWindowFocus: true,
 		refetchOnReconnect: true,
 		staleTime: Infinity,

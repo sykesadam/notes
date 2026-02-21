@@ -84,6 +84,8 @@ export const syncNotes = async () => {
 
 	// 2️⃣ Get all pending outbox items
 	const outboxItems = await db.getAll("outbox");
+	// Map noteId → outbox item id so we can delete by the correct key later
+	const noteIdToOutboxId = new Map(outboxItems.map((item) => [item.noteId, item.id]));
 	const payload = outboxItems.map((item) => ({
 		op: item.op,
 		noteId: item.noteId,

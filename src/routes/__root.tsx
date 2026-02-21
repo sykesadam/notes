@@ -74,8 +74,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootShell({ children }: { children: React.ReactNode }) {
 	const { sidebarState, themeState = "dark" } = Route.useRouteContext();
 
-	console.log("themeState", themeState);
-
 	return (
 		<html lang="en" className={themeState}>
 			<head>
