@@ -6,8 +6,11 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
-      server: {
+  server: {
     port: 3000,
+  },
+  ssr: {
+    noExternal: ['better-auth'],
   },
   plugins: [
     // this is the plugin that enables path aliases
