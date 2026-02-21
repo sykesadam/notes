@@ -1,5 +1,8 @@
 import { createMiddleware, createServerFn } from "@tanstack/react-start";
-import { getWebRequest, setResponseStatus } from "@tanstack/react-start/server";
+import {
+	getRequestHeaders,
+	setResponseStatus,
+} from "@tanstack/react-start/server";
 import { auth } from "../auth";
 import type { LocalNote } from "./adapters";
 import { connectToDB } from "./local/notes";
@@ -17,8 +20,9 @@ interface GetRemoteNotes {
 
 export const authMiddleware = createMiddleware({ type: "function" }).server(
 	async ({ next }) => {
+		const headers = getRequestHeaders();
 		const session = await auth.api.getSession({
-			headers: getWebRequest().headers,
+			headers,
 			query: {
 				// ensure session is fresh
 				// https://www.better-auth.com/docs/concepts/session-management#session-caching
@@ -39,7 +43,7 @@ export const serverNotesSyncFn = createServerFn({
 	method: "POST",
 })
 	.middleware([authMiddleware])
-	.validator((data: GetRemoteNotes) => data)
+	.inputValidator((data: GetRemoteNotes) => data)
 	.handler(async (ctx) => {
 		const { lastPulledAt, changes } = ctx.data;
 		const userId = ctx.context.user.id;

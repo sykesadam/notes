@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
 	createFileRoute,
 	Link,
-	redirect,
 	useNavigate,
 } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";

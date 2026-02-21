@@ -10,7 +10,6 @@ import { Toggle } from "../ui/toggle";
 import { FloatingActions } from "./floating-actions";
 import { HistoryActions } from "./history-actions";
 import { InlineTextActions } from "./inline-text-actions";
-import { InsertActions } from "./insert-actions";
 import { LinkAction } from "./link-action";
 import { ListActions } from "./list-actions";
 import { TagChangeActions } from "./tag-change-action";

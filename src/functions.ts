@@ -1,5 +1,5 @@
 import { createIsomorphicFn } from "@tanstack/react-start";
-import { getCookie, getWebRequest } from "@tanstack/react-start/server";
+import { getCookie, getRequest } from "@tanstack/react-start/server";
 import type { RouterContext } from "@/routes/__root";
 import { SIDEBAR_COOKIE_NAME } from "./components/ui/sidebar";
 import { auth } from "./lib/auth";
@@ -20,7 +20,7 @@ export const $getSession = createIsomorphicFn()
 		};
 	})
 	.server(async (_: RouterContext["queryClient"]) => {
-		const request = getWebRequest();
+		const request = getRequest();
 
 		if (!request?.headers) {
 			return { session: null };

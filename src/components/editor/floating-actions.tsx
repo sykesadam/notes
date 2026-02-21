@@ -1,7 +1,5 @@
 import {
-	autoPlacement,
 	autoUpdate,
-	flip,
 	limitShift,
 	offset,
 	shift,
@@ -27,7 +25,6 @@ export const FloatingActions = () => {
 	const [editor] = useLexicalComposerContext();
 	const [showActions, setShowActions] = useState(false);
 	const [isSelecting, setIsSelecting] = useState(false);
-	const [isPositioned, setIsPositioned] = useState(false);
 	const isTypingRef = useRef(false);
 
 	const editorWidth = editor.getRootElement()?.clientWidth || 0;
@@ -62,7 +59,6 @@ export const FloatingActions = () => {
 
 	const hideMenu = useCallback(() => {
 		setShowActions(false);
-		setIsPositioned(false);
 	}, []);
 
 	const updateMenu = useCallback(() => {
@@ -100,7 +96,6 @@ export const FloatingActions = () => {
 				getBoundingClientRect: () => rect,
 			});
 			setShowActions(true);
-			setIsPositioned(true);
 		});
 	}, [editor, refs, hideMenu]);
 

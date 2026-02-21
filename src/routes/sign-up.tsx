@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { Button } from "@/components/ui/button";
@@ -43,10 +43,10 @@ function RouteComponent() {
 				password: values.password,
 			},
 			{
-				onRequest: (ctx) => {
+				onRequest: () => {
 					//show loading
 				},
-				onSuccess: (ctx) => {
+				onSuccess: () => {
 					//redirect to the dashboard or sign in page
 				},
 				onError: (ctx) => {

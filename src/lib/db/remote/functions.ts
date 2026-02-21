@@ -3,7 +3,7 @@ import { type LocalNote, localToRemote, remoteToLocal } from "../adapters";
 import { db } from "./db";
 import { notes } from "./schema";
 
-export async function pullRemoteNotes(userId: string, lastPulledAt: number) {
+export async function pullRemoteNotes(userId: string, _lastPulledAt: number) {
 	const rows = await db.query.notes.findMany({
 		where: (n, { eq, and }) => and(eq(n.userId, userId), eq(n.deleted, false)),
 	});
