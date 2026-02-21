@@ -9,9 +9,6 @@ const config = defineConfig({
   server: {
     port: 3000,
   },
-  ssr: {
-    noExternal: ['better-auth'],
-  },
   plugins: [
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
