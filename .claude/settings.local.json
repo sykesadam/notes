@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cd /c/Users/adams/Documents/notes && npm run typecheck 2>&1)"
+      "Bash(cd /c/Users/adams/Documents/notes && npm run typecheck 2>&1)",
+      "WebFetch(domain:tanstack.com)",
+      "WebSearch"
     ]
   }
 }
