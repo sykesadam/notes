@@ -92,18 +92,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 						{children}
 					</SidebarProvider>
 				</ThemeProvider>
-				<TanStackDevtools
-					config={{
-						position: "bottom-right",
-					}}
-					plugins={[
-						{
-							name: "Tanstack Router",
-							render: <TanStackRouterDevtoolsPanel />,
-						},
-						TanStackQueryDevtools,
-					]}
-				/>
+				{import.meta.env.DEV && (
+					<TanStackDevtools
+						config={{
+							position: "bottom-right",
+						}}
+						plugins={[
+							{
+								name: "Tanstack Router",
+								render: <TanStackRouterDevtoolsPanel />,
+							},
+							TanStackQueryDevtools,
+						]}
+					/>
+				)}
 				<Scripts />
 			</body>
 		</html>
