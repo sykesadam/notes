@@ -6,6 +6,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
+      server: {
+    port: 3000,
+  },
   plugins: [
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
